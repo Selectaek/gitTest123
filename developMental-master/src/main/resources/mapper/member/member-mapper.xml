@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="member">
+	
+	<select id="selectFindEmail" parameterType="String" resultType="com.kh.workman.member.model.vo.Member">
+		SELECT * FROM MEMBER WHERE EMAIL=#{tomail}
+	</select>
+	
+	<update id="updateMemberEmail" parameterType="com.kh.workman.member.model.vo.Member">
+		UPDATE MEMBER SET PW=#{pw} WHERE status=1 and EMAIL=#{email}
+	</update>
+	
+	
+	<select id="selectMemberCount" resultType="_int">
+		SELECT COUNT(*) FROM Member
+	</select>
+	
+	<select id="selectMemberList" resultType="adminMember">
+		SELECT * FROM MEMBER ORDER BY NO
+	</select>
+	<!--
+		update쿼리 int
+		# 자료형 맞춰주는것
+		$ 무조건 문자열
+	 -->
+	<update id="statusUpdate" parameterType="map">
+		UPDATE MEMBER SET STATUS=#{status} WHERE NO=#{no}
+	</update>
+	
+	<update id="updateInfoMember" parameterType="com.kh.workman.member.model.vo.Member">
+	<choose>
+	<when test="pw == null || pw == '' ">
+		UPDATE MEMBER SET NICKNAME=#{nickname},PROFILE=#{profile},TEL=#{tel},ADDR=#{addr} WHERE ID=#{id}
+	</when>
+	<otherwise>
+		UPDATE MEMBER SET NICKNAME=#{nickname},PW=#{pw}, PROFILE=#{profile},TEL=#{tel},ADDR=#{addr} WHERE ID=#{id}
+	</otherwise>	
+	</choose>
+	</update>
+	
+	<delete id="deleteMember" parameterType="map">
+		DELETE FROM MEMBER WHERE ID=#{id}
+	</delete>
+	
+	<select id="selectMember" resultType="map" parameterType="string">
+		SELECT * FROM MEMBER where ID=#{id}
+	</select>
+	
+	<select id="listAll" resultType="adminMember">
+		SELECT * FROM MEMBER
+			<include refid="search"></include>
+	</select>
+	<select id="countArticle" resultType="_int">
+		SELECT COUNT(*) FROM MEMBER
+			<include refid="search"></include>
+	</select>
+	
+	<!-- sql 조각코드 -->
+	<sql id="search">
+		<choose>
+			<!-- 전체검색 -->
+			<when test="searchType == 'all'">
+				WHERE ID LIKE '%'||#{keyword}||'%'
+				OR NAME LIKE '%'||#{keyword}||'%'
+				OR  NICKNAME '%'||#{keyword}||'%'
+				OR STATUS LIKE '%'||#{keyword}||'%'
+				OR EMAIL LIKE '%'||#{keyword}||'%'
+			</when>
+			<!-- 전체검색 아닐 때 -->
+			<otherwise>
+				WHERE ${searchType} LIKE '%'||#{keyword}||'%'
+			</otherwise>
+		</choose>
+	</sql>
+	
+	
+
+  <select id="selectLogin" parameterType="com.kh.workman.member.model.vo.Member" resultType="com.kh.workman.member.model.vo.Member">
+  	SELECT * FROM MEMBER WHERE status=1 and id=#{id}
+  </select>
+  
+  <insert id="insertMember" parameterType="com.kh.workman.member.model.vo.Member">
+  	INSERT INTO MEMBER VALUES(DEFAULT,#{id},#{pw},#{name},#{nickname},#{email},#{addr},#{tel},DEFAULT,DEFAULT,DEFAULT,DEFAULT,NULL,DEFAULT,0)
+  </insert>
+</mapper>
